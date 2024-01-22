@@ -173,6 +173,7 @@ void loop() {
     {
       Serial.print((DI_state >>(i-1)) & 1 == 1 ? "1" : "0"); // will reverse bit order!
     }
+    Serial.println();
     Serial.print("Output:");
     for (int i=4;i!=0;i--)
     {
@@ -236,7 +237,3 @@ void updateLedColor(uint8_t led, uint8_t state)
   }
 }
 
-void getDIPin()
-{
-  
-}
