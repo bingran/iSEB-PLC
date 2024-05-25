@@ -1,7 +1,9 @@
+/* Control of double acting cylinder with double solenoid valve */
 #include <WS2812FX.h>
 
 /* Define the sequence of the LED */
 #define DI_1_LED 0
+
 #define DI_2_LED 1
 #define DI_3_LED 2
 #define DI_4_LED 3
@@ -55,6 +57,11 @@ void setup() {
   pinMode(DO_2, OUTPUT);
   pinMode(DO_3, OUTPUT);
   pinMode(DO_4, OUTPUT);
+  setDoutPin(DO_1, LOW); 
+  setDoutPin(DO_2, LOW); 
+  setDoutPin(DO_3, LOW); 
+  setDoutPin(DO_4, LOW); 
+
   // initialize the pushbutton pin as an input:
   pinMode(DI_1, INPUT);
   pinMode(DI_2, INPUT);
@@ -72,49 +79,41 @@ void loop() {
   DI_state = 0;
   if(1 == digitalRead(DI_1))
   {
-    setDoutPin(DO_1, LOW);
     DI_state |= 0x01;
     updateLedColor(DI_1_LED,0);
   }
   else
   {
-    setDoutPin(DO_1, HIGH);
     updateLedColor(DI_1_LED,1);
   }
 
   if(1 == digitalRead(DI_2))
   {
-    setDoutPin(DO_2, LOW); 
     DI_state |= 0x02;
     updateLedColor(DI_2_LED,0);
   }
   else
   {
-    setDoutPin(DO_2, HIGH);
     updateLedColor(DI_2_LED,1);
   }
 
   if(1 == digitalRead(DI_3))
   {
-    setDoutPin(DO_3, LOW); 
     DI_state |= 0x04;
     updateLedColor(DI_3_LED,0);
   }
   else
   {
-    setDoutPin(DO_3, HIGH);
     updateLedColor(DI_3_LED,1);
   }
 
   if(1 == digitalRead(DI_4))
   {
-    setDoutPin(DO_4, LOW); // sets the digital pin 13 on
     DI_state |= 0x08;
     updateLedColor(DI_4_LED,0);
   }
   else
   {
-    setDoutPin(DO_4, HIGH);
     updateLedColor(DI_4_LED,1);
   }
 
@@ -171,7 +170,7 @@ void loop() {
     Serial.print("Input:");
     for (int i=8;i!=0;i--)
     {
-      Serial.print((DI_state >>(i-1)) & 1 == 1 ? "1" : "0"); // will reverse bit order!
+      Serial.print((DI_state >>(i-1)) & 1 == 1 ? "0" : "1"); // will reverse bit order!
     }
     Serial.println();
     Serial.print("Output:");
@@ -182,6 +181,19 @@ void loop() {
     Serial.println();
   }
 
+  /* PB 1 ON S2 ON -> Y1 ON */
+  if(((DI_state&0x01)==0x00)/*&&((DI_state&0x04)==0x04)*/)
+  { 
+    setDoutPin(DO_1, HIGH); 
+    setDoutPin(DO_2, LOW); 
+  }
+   /* PB 2 ON S3 ON -> Y2 ON */
+  else if(((DI_state&0x02)==0x00)/*&&((DI_state&0x08)==0x08)*/)
+  {
+    setDoutPin(DO_1, LOW); 
+    setDoutPin(DO_2, HIGH); 
+  }
+  
   ws2812fx.service();
 }
 
