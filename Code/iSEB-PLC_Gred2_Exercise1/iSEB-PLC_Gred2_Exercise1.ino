@@ -39,6 +39,8 @@ unsigned long last_change = 0;
 unsigned long now = 0;
 uint16_t bf1s = 0 ;
 uint32_t color[12] = {0x00};
+uint8_t DO_1_Ontime = 0 ;
+uint8_t DO_2_Ontime = 0 ;
 
 WS2812FX ws2812fx = WS2812FX(12, rgbledPin, NEO_GRB + NEO_KHZ800);
 
@@ -179,17 +181,38 @@ void loop() {
       Serial.print((DO_State >>(i-1)) & 1 == 1 ? "1" : "0"); // will reverse bit order!
     }
     Serial.println();
+
+    if( 0 != DO_1_Ontime )
+    {
+      DO_1_Ontime --;
+      if( 0 == DO_1_Ontime)
+      {
+        setDoutPin(DO_1, LOW); 
+      }
+    }
+    if( 0 != DO_2_Ontime )
+    {
+      DO_2_Ontime --;
+      if( 0 == DO_2_Ontime)
+      {
+        setDoutPin(DO_2, LOW); 
+      }
+    }
   }
 
   /* PB 1 ON S2 ON -> Y1 ON */
   if(((DI_state&0x01)==0x00)/*&&((DI_state&0x04)==0x04)*/)
   { 
-    setDoutPin(DO_1, HIGH); 
+    DO_1_Ontime = 2;
+    DO_2_Ontime = 0; 
     setDoutPin(DO_2, LOW); 
+    setDoutPin(DO_1, HIGH); 
   }
    /* PB 2 ON S3 ON -> Y2 ON */
   else if(((DI_state&0x02)==0x00)/*&&((DI_state&0x08)==0x08)*/)
   {
+    DO_1_Ontime = 0;
+    DO_2_Ontime = 2; 
     setDoutPin(DO_1, LOW); 
     setDoutPin(DO_2, HIGH); 
   }
